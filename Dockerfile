@@ -14,7 +14,7 @@ RUN pip install -r requirements.txt
 EXPOSE 80
 
 # Define environment variable
-ENV NAME World
+ENV DATABASE_URL dev.db
 
 # Run app.py when the container launches
 CMD ["python", "app.py"]
