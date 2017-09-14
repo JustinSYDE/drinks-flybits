@@ -1,4 +1,4 @@
-from run import db
+from drinks import db
 from datetime import date
 
 
@@ -16,4 +16,3 @@ class Drink(db.Model):
         self.price = price
         self.start_availability_date = start_availability_date
         self.end_availability_date = end_availability_date
-

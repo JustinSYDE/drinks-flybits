@@ -1,3 +1,3 @@
-from run import db
+from drinks import db
 
 db.create_all()
