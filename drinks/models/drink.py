@@ -7,6 +7,7 @@ class Drink(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    # TODO: validate price format
     price = db.Column(db.Float, nullable=False, default=0)
     start_availability_date = db.Column(db.DateTime, nullable=False, default=date.today())
     end_availability_date = db.Column(db.DateTime)
