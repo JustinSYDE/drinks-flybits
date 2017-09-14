@@ -14,7 +14,7 @@ RUN pip install -r requirements.txt
 EXPOSE 80
 
 # Define environment variable
-ENV DATABASE_URL dev.db
+ENV DATABASE_URL /dev.sqlite
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Run run.py when the container launches
+CMD ["python", "run.py"]
