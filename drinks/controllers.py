@@ -1,9 +1,9 @@
+from datetime import date
 from drinks import (
     app,
     db
 )
 from drinks.models.drink import Drink
-from datetime import date
 
 
 @app.route("/drink/<id>")
