@@ -80,9 +80,9 @@ def search():
     results = query.all()
 
     return json.dumps([{
-        "id": result.__dict__.get("id"),
-        "name": result.__dict__.get('name'),
-        "price": result.__dict__.get('price'),
-        "start_availability_date": str(result.__dict__.get('start_availability_date')),
-        "end_availability_date": str(result.__dict__.get('end_availability_date')) if result.__dict__.get('end_availability_date') else None,
+        "id": result.id,
+        "name": result.name,
+        "price": result.price,
+        "start_availability_date": str(result.start_availability_date),
+        "end_availability_date": str(result.end_availability_date) if result.end_availability_date else None,
     } for result in results])
