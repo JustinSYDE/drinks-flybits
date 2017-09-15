@@ -1,7 +1,6 @@
-from datetime import (
-    date,
-    datetime
-)
+import json
+
+from datetime import datetime
 from drinks import (
     app,
     db
@@ -17,11 +16,6 @@ from flask import (
 def find(id):
     drink = db.session.query(Drink).filter(Drink.id == id).first()
     return drink.name
-
-
-@app.route("/drink/search", methods=['GET'])
-def search():
-    pass
 
 
 class Price:
@@ -55,8 +49,8 @@ def create():
     drink = Drink(
         name,
         price.value,
-        start_availability_date,
-        end_availability_date
+        start_availability_date.value,
+        end_availability_date.value if end_availability_date else None
     )
 
     db.session.add(drink)
@@ -64,12 +58,14 @@ def create():
     return 'success'
 
 
-@app.route("/write")
-def write():
-    drink = Drink(
-        'Nestea',
-        2.50,
-        date.today()
-    )
-    db.session.add(drink)
-    db.session.commit()
+@app.route("/drink/search", methods=['GET'])
+def search():
+    name = str(request.args.get('name'))
+
+    results = db.session.query(Drink).filter(Drink.name.like('%{}%'.format(name))).all()
+    return json.dumps([{
+        "name": result.__dict__.get('name'),
+        "price": result.__dict__.get('price'),
+        "start_availability_date": str(result.__dict__.get('start_availability_date')),
+        "end_availability_date": str(result.__dict__.get('end_availability_date')) if result.__dict__.get('end_availability_date') else None,
+    } for result in results])
