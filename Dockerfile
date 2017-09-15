@@ -15,6 +15,7 @@ EXPOSE 80
 
 # Define environment variable
 ENV DATABASE_URL /dev.sqlite
+ENV TEST_DATABASE_URL /test.sqlite
 
 # Run run.py when the container launches
 CMD ["python", "run.py"]
