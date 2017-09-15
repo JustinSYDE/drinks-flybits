@@ -66,7 +66,7 @@ def delete_by_id(id):
 
     db.session.query(Drink).filter(Drink.id == id).delete()
     db.session.commit()
-    return 'successfully deleted'
+    return json.dumps({'message': 'Successfully deleted drink with id {}'.format(id)}), 200
 
 
 @app.route("/drink/search", methods=['GET'])
