@@ -37,6 +37,12 @@ class AvailabilityDate:
             abort(400, {'message': 'Date must be in format %d %b %y. Try something similar to 30 sept 17'})
 
 
+
+@app.route("/")
+def index():
+    return 'Hey Flybits!'
+
+
 @app.route("/drink", methods=['POST'])
 def create():
     name = str(request.args.get('name'))
