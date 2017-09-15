@@ -10,12 +10,7 @@ from flask import (
     abort,
     request
 )
-
-
-@app.route("/drink/<id>")
-def find(id):
-    drink = db.session.query(Drink).filter(Drink.id == id).first()
-    return drink.name
+from sqlalchemy import or_
 
 
 class Price:
@@ -42,7 +37,8 @@ def create():
     name = str(request.args.get('name'))
     price = Price(float(request.args.get('price')))
     start_date_str = str(request.args.get('start_availability_date'))
-    end_date_str = str(request.args.get('end_availability_date')) if request.args.get('end_availability_date') else None
+    end_date_str = str(request.args.get('end_availability_date')) \
+        if request.args.get('end_availability_date') else None
     start_availability_date = AvailabilityDate(start_date_str)
     end_availability_date = AvailabilityDate(end_date_str) if end_date_str else None
 
@@ -55,19 +51,36 @@ def create():
 
     db.session.add(drink)
     db.session.commit()
-    return 'success'
+    return 'successfully added'
+
+
+@app.route("/drink/<id>", methods=['DELETE'])
+def delete_by_id(id):
+    db.session.query(Drink).filter(Drink.id == id).delete()
+    db.session.commit()
+    return 'successfully deleted'
 
 
 @app.route("/drink/search", methods=['GET'])
 def search():
-    name = str(request.args.get('name'))
-    available_on_day_str = str(request.args.get('available_on_day'))
+    # TODO: Add price filter
+    name = str(request.args.get('name')) if request.args.get('name') else None
+    available_on_day_str = str(request.args.get('available_on_day')) \
+        if request.args.get('available_on_day') \
+        else datetime.today().strftime('%d %b %y')
     available_on_day = AvailabilityDate(available_on_day_str)
 
-    results = db.session.query(Drink)\
+    query = db.session.query(Drink)\
         .filter(available_on_day.value >= Drink.start_availability_date)\
-        .filter(Drink.name.like('%{}%'.format(name))).all()
+        .filter(or_(Drink.end_availability_date == None, available_on_day.value <= Drink.end_availability_date))\
+
+    if name:
+        query = query.filter(Drink.name.like('%{}%'.format(name)))
+
+    results = query.all()
+
     return json.dumps([{
+        "id": result.__dict__.get("id"),
         "name": result.__dict__.get('name'),
         "price": result.__dict__.get('price'),
         "start_availability_date": str(result.__dict__.get('start_availability_date')),
