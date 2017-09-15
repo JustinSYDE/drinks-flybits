@@ -14,22 +14,27 @@ from sqlalchemy import or_
 
 
 class Price:
+    """
+    valid price: 2, 2.22, 2.5
+    """
     def __init__(self, value):
         try:
             self.value = "{:.2f}".format(value)
         except ValueError:
-            abort(400)
+            abort(400, {'message': 'Price must be an integer or a float x or x.xx'})
 
 
 class AvailabilityDate:
-    # e.g. 30 nov 17
+    """
+    valid date: 30 nov 17
+    """
     datetime_format = "%d %b %y"
 
     def __init__(self, date_str):
         try:
             self.value = datetime.strptime(date_str, self.datetime_format)
         except ValueError:
-            abort(400)
+            abort(400, {'message': 'Date must be in format %d %b %y. Try something similar to 30 sept 17'})
 
 
 @app.route("/drink", methods=['POST'])
@@ -51,11 +56,14 @@ def create():
 
     db.session.add(drink)
     db.session.commit()
-    return 'successfully added'
+    return json.dumps({'message': 'Successfully added {} as new drink'.format(name)}), 200
 
 
 @app.route("/drink/<id>", methods=['DELETE'])
 def delete_by_id(id):
+    if not db.session.query(Drink).filter(Drink.id == id).first():
+        abort(404, {'message': 'Drink with id {} does not exist'.format(id)})
+
     db.session.query(Drink).filter(Drink.id == id).delete()
     db.session.commit()
     return 'successfully deleted'
@@ -85,4 +93,4 @@ def search():
         "price": result.price,
         "start_availability_date": str(result.start_availability_date),
         "end_availability_date": str(result.end_availability_date) if result.end_availability_date else None,
-    } for result in results])
+    } for result in results]), 200
