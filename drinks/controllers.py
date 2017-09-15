@@ -61,8 +61,12 @@ def create():
 @app.route("/drink/search", methods=['GET'])
 def search():
     name = str(request.args.get('name'))
+    available_on_day_str = str(request.args.get('available_on_day'))
+    available_on_day = AvailabilityDate(available_on_day_str)
 
-    results = db.session.query(Drink).filter(Drink.name.like('%{}%'.format(name))).all()
+    results = db.session.query(Drink)\
+        .filter(available_on_day.value >= Drink.start_availability_date)\
+        .filter(Drink.name.like('%{}%'.format(name))).all()
     return json.dumps([{
         "name": result.__dict__.get('name'),
         "price": result.__dict__.get('price'),
