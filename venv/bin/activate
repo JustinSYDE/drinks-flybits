@@ -43,6 +43,12 @@ deactivate nondestructive
 VIRTUAL_ENV="/Users/justinwong/Github/drinks-flybits/venv"
 export VIRTUAL_ENV
 
+DATABASE_URL="/dev.sqlite"
+export DATABASE_URL
+
+TEST_DATABASE_URL="/test.sqlite"
+export TEST_DATABASE_URL
+
 _OLD_VIRTUAL_PATH="$PATH"
 PATH="$VIRTUAL_ENV/bin:$PATH"
 export PATH

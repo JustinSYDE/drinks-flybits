@@ -53,7 +53,7 @@ def index():
 
 
 @app.route("/drink", methods=['POST'])
-def create():
+def add():
     """
     Creates a new drink object and adds it to the table of drinks
     Example 1 (create a drink with a start and end availability date):
