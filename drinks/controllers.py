@@ -44,7 +44,7 @@ class AvailabilityDate:
 def validate_param_keys(param_keys):
     for request_arg in request.args:
         if request_arg not in param_keys:
-            abort(500, {'message': 'Invalid parameter {}.'.format(request_arg)})
+            abort(400, {'message': 'Invalid parameter {}.'.format(request_arg)})
 
 
 @app.route("/")
@@ -88,6 +88,10 @@ def create():
     responses:
         200:
             description: Successfully added the new drink
+            schema:
+                $ref: '#/definitions/Response'
+        400:
+            description: Bad request
             schema:
                 $ref: '#/definitions/Response'
     """
@@ -135,6 +139,10 @@ def delete_by_id(id):
         responses:
             200:
                 description: Successfully deleted the drink
+                schema:
+                    $ref: '#/definitions/Response'
+            400:
+                description: Bad request
                 schema:
                     $ref: '#/definitions/Response'
         """
@@ -199,6 +207,10 @@ def search():
                         "start_availability_date": "2016-04-30",
                         "name": "apple juice"
                      }]
+            400:
+                description: Bad request
+                schema:
+                    $ref: '#/definitions/Response'
     """
     valid_params = ['name', 'price', 'available_on_date']
     validate_param_keys(valid_params)
