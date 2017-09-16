@@ -1,3 +1,5 @@
+import ast
+import json
 import pytest
 from drinks import app, db
 from config import TestConfig
@@ -25,20 +27,19 @@ class TestDrinksApi:
         db.session.query(Drink).delete()
         db.session.commit()
 
-
     @pytest.fixture(scope='session')
     def mock_client(self, mock_app):
         client = mock_app.test_client()
         return client
 
     @pytest.fixture()
-    def mock_drinks(self):
+    def mock_drinks(self, mock_client, setup_db):
         mock_drinks = [
             {
                 "price": 1.51,
                 "id": 2,
                 "start_availability_date": "15 sep 17",
-                "name": "chocolate milk"
+                "name": "chocolate sauce"
             },
             {
                 "price": 1.52,
@@ -55,6 +56,19 @@ class TestDrinksApi:
             }
         ]
 
+        for mock_drink in mock_drinks:
+            resp = mock_client.post('/drink', query_string={
+                'name': mock_drink.get('name'),
+                'price': mock_drink.get('price'),
+                'start_availability_date': mock_drink.get('start_availability_date'),
+                'end_availability_date': mock_drink.get('end_availability_date')
+            })
+
+            assert resp.status_code == 200
+
+        drinks = db.session.query(Drink).all()
+        assert len(drinks) == 3
+
     def test_add_drink(self, mock_client, setup_db):
         mock_drink = {
             "price": 1.51,
@@ -70,11 +84,37 @@ class TestDrinksApi:
             'end_availability_date': mock_drink.get('end_availability_date')
         })
 
-        stuff = db.session.query(Drink).all()
-
+        drinks = db.session.query(Drink).all()
+        assert len(drinks) == 1
         assert resp.status_code == 200
 
-    # def test_search(self, mock_client, mock_drinks):
-    #     results = mock_client.get('/drink/search')
-    #     for result in results:
-    #         print result.id
+
+    def test_search(self, mock_client, mock_drinks):
+        expected = [
+            {
+                "price": 1.51,
+                "id": 2,
+                "start_availability_date": "15 sep 17",
+                "name": "chocolate sauce"
+            },
+            {
+                "price": 1.52,
+                "id": 3,
+                "start_availability_date": "15 aug 19",
+                "name": "apple juice"
+            },
+            {
+                "price": 1.52,
+                "end_availability_date": "29 aug 19",
+                "id": 4,
+                "start_availability_date": "16 aug 18",
+                "name": "apple sauce"
+            }
+        ]
+
+        resp = mock_client.get('/drink/search')
+        actual = json.loads(resp.data)
+
+        assert len(actual) == len(expected)
+
+
