@@ -32,11 +32,11 @@ class AvailabilityDate:
     """
     valid date: 30 nov 17
     """
-    datetime_format = "%d %b %y"
+    date_format = "%d %b %y"
 
     def __init__(self, date_str):
         try:
-            self.value = datetime.strptime(date_str, self.datetime_format)
+            self.value = datetime.strptime(date_str, self.date_format).date()
         except ValueError:
             abort(400, {'message': 'Date must be in format %d %b %y. Try something similar to 30 sept 17'})
 
@@ -52,10 +52,10 @@ def create():
     """
     Creates a new drink object and adds it to the table of drinks
     Example:
-        name: Coke
-        price: 2.50
-        start_availability_date: 28 feb 17
-        end_availability_date: 28 feb 18
+        - name: Coke
+        - price: 2.50
+        - start_availability_date: 28 feb 17
+        - end_availability_date: 28 feb 18
     ---
     parameters:
         - name: name
@@ -118,11 +118,63 @@ def delete_by_id(id):
 
 @app.route("/drink/search", methods=['GET'])
 def search():
+    """
+        Searches for all drinks that match a given search criteria
+        Example 1 (no search criteria - returns all drinks):
+        Example 2 (search for drinks whose name is like Coke):
+            - name: Coke
+        Example 3 (search for drinks available on 1 feb 17):
+            - available_on_day: 1 feb 17
+        Example 4 (search for drinks available on 1 feb 17 whose name is like Coke):
+            - name: Coke
+            - available_on_day: 1 feb 17
+        ---
+        parameters:
+            - name: name
+              in: query
+              type: string
+              required: false
+            - name: available_on_day
+              in: query
+              type: string
+              required: false
+        definitions:
+            Drink:
+                type: object
+                properties:
+                    id:
+                        type: integer
+                    name:
+                        type: string
+                    price:
+                        type: number
+                    start_availability_date:
+                        type: string
+                    end_availability_date:
+                        type: string
+            Drinks:
+                type: array
+                items:
+                    $ref: '#definitions/Drink'
+        responses:
+            200:
+                description: Successfully added the new drink
+                schema:
+                    $ref: '#/definitions/Drinks'
+                examples:
+                    [{
+                        "price": 10.0,
+                        "end_availability_date": null,
+                        "id": 2,
+                        "start_availability_date": "2016-04-30",
+                        "name": "apple juice"
+                     }]
+    """
     # TODO: Add price filter
     name = str(request.args.get('name')) if request.args.get('name') else None
     available_on_day_str = str(request.args.get('available_on_day')) \
         if request.args.get('available_on_day') \
-        else datetime.today().strftime('%d %b %y')
+        else datetime.today().date().strftime('%d %b %y')
     available_on_day = AvailabilityDate(available_on_day_str)
 
     query = db.session.query(Drink)\
