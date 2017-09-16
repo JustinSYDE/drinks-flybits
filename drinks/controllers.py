@@ -10,7 +10,11 @@ from flask import (
     abort,
     request
 )
+from flasgger import Swagger
 from sqlalchemy import or_
+
+
+swagger = Swagger(app)
 
 
 class Price:
@@ -45,6 +49,43 @@ def index():
 
 @app.route("/drink", methods=['POST'])
 def create():
+    """
+    Creates a new drink object and adds it to the table of drinks
+    Example:
+        name: Coke
+        price: 2.50
+        start_availability_date: 28 feb 17
+        end_availability_date: 28 feb 18
+    ---
+    parameters:
+        - name: name
+          in: query
+          type: string
+          required: true
+        - name: price
+          in: query
+          type: number
+          required: true
+        - name: start_availability_date
+          in: query
+          type: string
+          required: true
+        - name: end_availability_date
+          in: query
+          type: string
+          required: false
+    definitions:
+        Response:
+            type: object
+            properties:
+                message:
+                    type: string
+    responses:
+        200:
+            description: Successfully added the new drink
+            schema:
+                $ref: '#/definitions/Response'
+    """
     name = str(request.args.get('name'))
     price = Price(float(request.args.get('price')))
     start_date_str = str(request.args.get('start_availability_date'))
