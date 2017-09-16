@@ -56,11 +56,15 @@ def index():
 def create():
     """
     Creates a new drink object and adds it to the table of drinks
-    Example:
+    Example 1 (create a drink with a start and end availability date):
         - name: Coke
         - price: 2.50
         - start_availability_date: 28 feb 17
         - end_availability_date: 28 feb 18
+    Example 2 (create a drink with no end date):
+        - name: Coke
+        - price: 2.50
+        - start_availability_date: 28 feb 17
     ---
     parameters:
         - name: name
