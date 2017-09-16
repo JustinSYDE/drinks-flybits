@@ -38,7 +38,7 @@ class AvailabilityDate:
         try:
             self.value = datetime.strptime(date_str, self.date_format).date()
         except ValueError:
-            abort(400, {'message': 'Date must be in format %d %b %y. Try something similar to 30 sept 17'})
+            abort(400, {'message': 'Date must be in format %d %b %y. Try something similar to 30 sep 17'})
 
 
 
@@ -108,6 +108,28 @@ def create():
 
 @app.route("/drink/<id>", methods=['DELETE'])
 def delete_by_id(id):
+    """
+        Deletes drink by id
+        Example (delete drink with id 1):
+            - DEL /drink/1
+        ---
+        parameters:
+            - name: id
+              in: path
+              type: integer
+              required: true
+        definitions:
+            Response:
+                type: object
+                properties:
+                    message:
+                        type: string
+        responses:
+            200:
+                description: Successfully deleted the drink
+                schema:
+                    $ref: '#/definitions/Response'
+        """
     if not db.session.query(Drink).filter(Drink.id == id).first():
         abort(404, {'message': 'Drink with id {} does not exist'.format(id)})
 
@@ -172,17 +194,17 @@ def search():
     """
     # TODO: Add price filter
     name = str(request.args.get('name')) if request.args.get('name') else None
-    available_on_day_str = str(request.args.get('available_on_day')) \
-        if request.args.get('available_on_day') \
-        else datetime.today().date().strftime('%d %b %y')
-    available_on_day = AvailabilityDate(available_on_day_str)
+    available_on_day = AvailabilityDate(str(request.args.get('available_on_day'))) \
+        if request.args.get('available_on_day') else None
 
-    query = db.session.query(Drink)\
-        .filter(available_on_day.value >= Drink.start_availability_date)\
-        .filter(or_(Drink.end_availability_date == None, available_on_day.value <= Drink.end_availability_date))\
+    query = db.session.query(Drink)
 
     if name:
         query = query.filter(Drink.name.like('%{}%'.format(name)))
+
+    if available_on_day:
+        query = query.filter(available_on_day.value >= Drink.start_availability_date)\
+            .filter(or_(Drink.end_availability_date == None, available_on_day.value <= Drink.end_availability_date))
 
     results = query.all()
 
