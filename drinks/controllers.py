@@ -106,6 +106,9 @@ def create():
     start_availability_date = AvailabilityDate(start_date_str)
     end_availability_date = AvailabilityDate(end_date_str) if end_date_str else None
 
+    if end_availability_date and end_availability_date.value <= start_availability_date.value:
+        abort(400, {'message': 'End date {} must be after the start date {}'.format(end_availability_date.value, start_availability_date.value)})
+
     drink = Drink(
         name,
         price.value,
