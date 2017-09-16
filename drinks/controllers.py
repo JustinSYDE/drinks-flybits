@@ -41,6 +41,11 @@ class AvailabilityDate:
             abort(400, {'message': 'Date must be in format %d %b %y. Try something similar to 30 sep 17'})
 
 
+def validate_param_keys(param_keys):
+    for request_arg in request.args:
+        if request_arg not in param_keys:
+            abort(500, {'message': 'Invalid parameter {}.'.format(request_arg)})
+
 
 @app.route("/")
 def index():
@@ -86,6 +91,9 @@ def create():
             schema:
                 $ref: '#/definitions/Response'
     """
+    valid_params = ['name', 'price', 'start_availability_date', 'end_availability_date']
+    validate_param_keys(valid_params)
+
     name = str(request.args.get('name'))
     price = Price(float(request.args.get('price')))
     start_date_str = str(request.args.get('start_availability_date'))
@@ -146,17 +154,17 @@ def search():
         Example 2 (search for drinks whose name is like Coke):
             - name: Coke
         Example 3 (search for drinks available on 1 feb 17):
-            - available_on_day: 1 feb 17
+            - available_on_date: 1 feb 17
         Example 4 (search for drinks available on 1 feb 17 whose name is like Coke):
             - name: Coke
-            - available_on_day: 1 feb 17
+            - available_on_date: 1 feb 17
         ---
         parameters:
             - name: name
               in: query
               type: string
               required: false
-            - name: available_on_day
+            - name: available_on_date
               in: query
               type: string
               required: false
@@ -192,19 +200,21 @@ def search():
                         "name": "apple juice"
                      }]
     """
-    # TODO: Add price filter
+    valid_params = ['name', 'price', 'available_on_date']
+    validate_param_keys(valid_params)
+
     name = str(request.args.get('name')) if request.args.get('name') else None
-    available_on_day = AvailabilityDate(str(request.args.get('available_on_day'))) \
-        if request.args.get('available_on_day') else None
+    available_on_date = AvailabilityDate(str(request.args.get('available_on_date'))) \
+        if request.args.get('available_on_date') else None
 
     query = db.session.query(Drink)
 
     if name:
         query = query.filter(Drink.name.like('%{}%'.format(name)))
 
-    if available_on_day:
-        query = query.filter(available_on_day.value >= Drink.start_availability_date)\
-            .filter(or_(Drink.end_availability_date == None, available_on_day.value <= Drink.end_availability_date))
+    if available_on_date:
+        query = query.filter(available_on_date.value >= Drink.start_availability_date)\
+            .filter(or_(Drink.end_availability_date == None, available_on_date.value <= Drink.end_availability_date))
 
     results = query.all()
 
