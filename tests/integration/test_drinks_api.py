@@ -113,17 +113,29 @@ class TestDrinksApi:
         ])
         resp = mock_client.get('/drink/search')
         actual = json.loads(resp.data)
-
-        assert len(actual) == 3
         assert actual == json.loads(expected)
 
     def test_search_by_name(self, mock_client, mock_drinks):
-        search_name = 'apple'
+        expected = json.dumps([
+            {
+                "price": 1.52,
+                "id": 2,
+                "start_availability_date": "2019-08-15",
+                "name": "apple juice",
+                "end_availability_date": None
+            },
+            {
+                "price": 1.52,
+                "end_availability_date": "2019-08-29",
+                "id": 3,
+                "start_availability_date": "2018-08-16",
+                "name": "apple sauce"
+            }
+        ])
         resp = mock_client.get('/drink/search', query_string={
-            'name': search_name
+            'name': 'apple'
         })
         actual = json.loads(resp.data)
-
-        assert len(actual) == 2
+        assert actual == json.loads(expected)
 
 
