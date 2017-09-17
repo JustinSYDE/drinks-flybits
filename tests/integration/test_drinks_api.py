@@ -138,4 +138,25 @@ class TestDrinksApi:
         actual = json.loads(resp.data)
         assert actual == json.loads(expected)
 
-
+    def test_search_by_availability(self, mock_client, mock_drinks):
+        expected = json.dumps([
+            {
+                "price": 1.51,
+                "id": 1,
+                "start_availability_date": "2017-09-15",
+                "name": "chocolate sauce",
+                "end_availability_date": None
+            },
+            {
+                "price": 1.52,
+                "id": 2,
+                "start_availability_date": "2019-08-15",
+                "name": "apple juice",
+                "end_availability_date": None
+            }
+        ])
+        resp = mock_client.get('/drink/search', query_string={
+            'available_on_date': '1 jan 20'
+        })
+        actual = json.loads(resp.data)
+        assert actual == json.loads(expected)
