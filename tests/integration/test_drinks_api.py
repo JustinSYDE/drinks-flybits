@@ -1,9 +1,7 @@
-import ast
 import json
 import pytest
 from drinks import app, db
 from config import TestConfig
-from flask.ext.sqlalchemy import SQLAlchemy
 from drinks.models.drink import Drink
 
 
@@ -89,32 +87,43 @@ class TestDrinksApi:
         assert resp.status_code == 200
 
 
-    def test_search(self, mock_client, mock_drinks):
-        expected = [
+    def test_search_all(self, mock_client, mock_drinks):
+        expected = json.dumps([
             {
                 "price": 1.51,
+                "id": 1,
+                "start_availability_date": "2017-09-15",
+                "name": "chocolate sauce",
+                "end_availability_date": None
+            },
+            {
+                "price": 1.52,
                 "id": 2,
-                "start_availability_date": "15 sep 17",
-                "name": "chocolate sauce"
+                "start_availability_date": "2019-08-15",
+                "name": "apple juice",
+                "end_availability_date": None
             },
             {
                 "price": 1.52,
+                "end_availability_date": "2019-08-29",
                 "id": 3,
-                "start_availability_date": "15 aug 19",
-                "name": "apple juice"
-            },
-            {
-                "price": 1.52,
-                "end_availability_date": "29 aug 19",
-                "id": 4,
-                "start_availability_date": "16 aug 18",
+                "start_availability_date": "2018-08-16",
                 "name": "apple sauce"
             }
-        ]
-
+        ])
         resp = mock_client.get('/drink/search')
         actual = json.loads(resp.data)
 
-        assert len(actual) == len(expected)
+        assert len(actual) == 3
+        assert actual == json.loads(expected)
+
+    def test_search_by_name(self, mock_client, mock_drinks):
+        search_name = 'apple'
+        resp = mock_client.get('/drink/search', query_string={
+            'name': search_name
+        })
+        actual = json.loads(resp.data)
+
+        assert len(actual) == 2
 
 

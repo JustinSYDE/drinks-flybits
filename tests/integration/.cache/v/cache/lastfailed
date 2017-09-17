@@ -1,3 +1,4 @@
 {
-  "test_drinks_api.py::TestDrinksApi::()::test_create_drinks": true
+  "test_drinks_api.py::TestDrinksApi::()::test_create_drinks": true, 
+  "test_drinks_api.py::TestDrinksApi::()::test_search_all": true
 }
