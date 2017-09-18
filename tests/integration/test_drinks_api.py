@@ -180,4 +180,12 @@ class TestDrinksApi:
         assert resp.status_code == 200
         actual = json.loads(resp.data)
         assert actual == json.loads(expected)
-    
+
+    def test_delete_drink(self, mock_client, mock_drinks):
+        drink_to_delete_id = 1
+        url = '/drink/' + str(drink_to_delete_id)
+        resp = mock_client.delete(url)
+        assert resp.status_code == 200
+
+        deleted_drink = db.session.query(Drink).filter(Drink.id == drink_to_delete_id).first()
+        assert deleted_drink is None
