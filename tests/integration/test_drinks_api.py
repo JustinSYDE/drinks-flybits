@@ -82,10 +82,27 @@ class TestDrinksApi:
             'end_availability_date': mock_drink.get('end_availability_date')
         })
 
+        assert resp.status_code == 200
         drinks = db.session.query(Drink).all()
         assert len(drinks) == 1
-        assert resp.status_code == 200
 
+    def test_add_drink_with_end_date_before_start_date(self, mock_client, setup_db):
+        mock_drink = {
+            "price": 1.51,
+            "id": 2,
+            "start_availability_date": "15 sep 17",
+            "end_availability_date": "15 sep 16",
+            "name": "chocolate milk"
+        }
+
+        resp = mock_client.post('/drink', query_string={
+            'name': mock_drink.get('name'),
+            'price': mock_drink.get('price'),
+            'start_availability_date': mock_drink.get('start_availability_date'),
+            'end_availability_date': mock_drink.get('end_availability_date')
+        })
+
+        assert resp.status_code == 400
 
     def test_search_all(self, mock_client, mock_drinks):
         expected = json.dumps([
@@ -112,6 +129,7 @@ class TestDrinksApi:
             }
         ])
         resp = mock_client.get('/drink/search')
+        assert resp.status_code == 200
         actual = json.loads(resp.data)
         assert actual == json.loads(expected)
 
@@ -135,6 +153,7 @@ class TestDrinksApi:
         resp = mock_client.get('/drink/search', query_string={
             'name': 'apple'
         })
+        assert resp.status_code == 200
         actual = json.loads(resp.data)
         assert actual == json.loads(expected)
 
@@ -158,5 +177,7 @@ class TestDrinksApi:
         resp = mock_client.get('/drink/search', query_string={
             'available_on_date': '1 jan 20'
         })
+        assert resp.status_code == 200
         actual = json.loads(resp.data)
         assert actual == json.loads(expected)
+    
