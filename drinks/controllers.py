@@ -49,7 +49,7 @@ def validate_param_keys(param_keys):
 
 @app.route("/")
 def index():
-    return 'Hey Flybits!'
+    return 'Hey Flybits! Visit /apidocs for api documentation'
 
 
 @app.route("/drink", methods=['POST'])
